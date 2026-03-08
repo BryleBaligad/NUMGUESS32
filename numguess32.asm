@@ -204,7 +204,7 @@ WinMain proc hInst :dword, hPrevInst :dword, szCmdLine :dword, nShowCmd :dword
 
     ; create textbox
     invoke CreateWindowEx, WS_EX_CLIENTEDGE, addr szEditClass, NULL,
-            WS_CHILD or WS_VISIBLE or WS_BORDER or ES_AUTOHSCROLL or ES_NUMBER,
+            WS_CHILD or WS_VISIBLE or WS_BORDER or ES_AUTOHSCROLL or ES_NUMBER or WS_TABSTOP,
             100, 190, 155, 24,
             hWnd, 1002, hInst, NULL
     mov hEdit, eax
@@ -219,7 +219,7 @@ WinMain proc hInst :dword, hPrevInst :dword, szCmdLine :dword, nShowCmd :dword
     szText szClearButtonText, "Clear"
 
     invoke CreateWindowEx, 0, addr szButtonClass, addr szClearButtonText,
-            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
+            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON or WS_TABSTOP,
             260, 190, 60, 25,
             hWnd, 1003, hInst, NULL
     mov hClearButton, eax
@@ -231,9 +231,8 @@ WinMain proc hInst :dword, hPrevInst :dword, szCmdLine :dword, nShowCmd :dword
 
     ; create button
     szText szButtonText, "Guess!"
-
     invoke CreateWindowEx, 0, addr szButtonClass, addr szButtonText,
-            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON,
+            WS_CHILD or WS_VISIBLE or BS_PUSHBUTTON or WS_TABSTOP,
             155, 220, 80, 30,
             hWnd, 1004, hInst, NULL
     mov hGuessButton, eax
@@ -269,20 +268,24 @@ WinMain proc hInst :dword, hPrevInst :dword, szCmdLine :dword, nShowCmd :dword
 	invoke UpdateWindow, hWnd
 
 MessagePump:
+    invoke GetMessage, addr msg, NULL, 0, 0
+    cmp eax, 0
+    je MessagePumpEnd
 
-	invoke GetMessage, addr msg, NULL, 0, 0
+    invoke IsDialogMessage, hWnd, addr msg
+    cmp eax, 0
+    je @F
 
-	cmp eax, 0
-	je  MessagePumpEnd
+    jmp MessagePump
 
-	invoke TranslateMessage, addr msg
-	invoke DispatchMessage,  addr msg
-
-	jmp MessagePump
+@@:
+    invoke TranslateMessage, addr msg
+    invoke DispatchMessage, addr msg
+    jmp MessagePump
 
 MessagePumpEnd:
-	mov eax, msg.wParam
-	ret
+    mov eax, msg.wParam
+    ret
 
 WinMain endp
 
