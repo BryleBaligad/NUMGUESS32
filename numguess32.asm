@@ -256,7 +256,7 @@ WinMain proc hInst :dword, hPrevInst :dword, szCmdLine :dword, nShowCmd :dword
     szText szGuessRange, "Range: 1 - 100"
     invoke CreateWindowEx, 0, addr szStaticClass, addr szGuessRange, 
                 WS_CHILD or WS_VISIBLE or SS_RIGHT, 
-                255, 240, 130, 25, 
+                235, 240, 150, 25, 
                 hWnd, 1006, hInst, NULL
     mov hGuessRange, eax
     invoke SendMessage, hGuessRange, WM_SETFONT, hFont, TRUE
@@ -387,18 +387,22 @@ WndProc proc hWin :dword, uMsg :dword, wParam :dword, lParam :dword
                     invoke wsprintf, addr buffer, chr$("Debug: %d"), spookyNumber
                     invoke SetWindowText, hDebugText, addr buffer
                 .elseif ebx < eax
-                    mov lowestRange, ebx
-                    inc lowestRange
-                    invoke wsprintf, addr buffer2, chr$("Range: %d - %d"), lowestRange, highestRange
-                    invoke SetWindowText, hGuessRange, addr buffer2
+                    .if ebx > lowestRange
+                        mov lowestRange, ebx
+                        inc lowestRange
+                        invoke wsprintf, addr buffer2, chr$("Range: %d - %d"), lowestRange, highestRange
+                        invoke SetWindowText, hGuessRange, addr buffer2
+                    .endif
 
                     invoke PlaySound, addr szFahhName, hInstance, SND_RESOURCE or SND_ASYNC
                     invoke SetWindowText, hHigherLower, chr$("Higher!")
                 .else
-                    mov highestRange, ebx
-                    dec highestRange
-                    invoke wsprintf, addr buffer2, chr$("Range: %d - %d"), lowestRange, highestRange
-                    invoke SetWindowText, hGuessRange, addr buffer2
+                    .if ebx < highestRange
+                        mov highestRange, ebx
+                        dec highestRange
+                        invoke wsprintf, addr buffer2, chr$("Range: %d - %d"), lowestRange, highestRange
+                        invoke SetWindowText, hGuessRange, addr buffer2
+                    .endif
 
                     invoke PlaySound, addr szFahhName, hInstance, SND_RESOURCE or SND_ASYNC
                     invoke SetWindowText, hHigherLower, chr$("Lower!")
