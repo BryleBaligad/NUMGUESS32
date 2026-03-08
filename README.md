@@ -1,0 +1,3 @@
+# ITS112P x86 Assembly Project
+
+This project assumes you have masm32 added to PATH.
