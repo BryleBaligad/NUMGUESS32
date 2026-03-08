@@ -35,6 +35,7 @@ WndProc proto :dword, :dword, :dword, :dword
     hClearButton dd ?  ; clear button
     hGuessButton dd ?  ; guess button
     hGuessCount dd ?   ; guess count text
+    hGuessRange dd ?   ; guess range text
 
     szBeepName db "BEEP", 0
     szTadaName db "TADA", 0
@@ -47,8 +48,8 @@ WndProc proto :dword, :dword, :dword, :dword
     hIconStatic3 dd ?
 
     guessCount dd 0
-    lowestGuess dd 0
-    highestGuess dd 0
+    lowestRange dd 1
+    highestRange dd 100
 
     currentAnimFrame dd 101
     maxAnimFrame dd 157
@@ -252,6 +253,14 @@ WinMain proc hInst :dword, hPrevInst :dword, szCmdLine :dword, nShowCmd :dword
     mov hGuessCount, eax
     invoke SendMessage, hGuessCount, WM_SETFONT, hFont, TRUE
 
+    szText szGuessRange, "Range: 1 - 100"
+    invoke CreateWindowEx, 0, addr szStaticClass, addr szGuessRange, 
+                WS_CHILD or WS_VISIBLE or SS_RIGHT, 
+                255, 240, 130, 25, 
+                hWnd, 1006, hInst, NULL
+    mov hGuessRange, eax
+    invoke SendMessage, hGuessRange, WM_SETFONT, hFont, TRUE
+
     ; invoke wsprintf, addr buffer, chr$("Debug: %d"), spookyNumber
     ; invoke SetWindowText, hDebugText, addr buffer
 
@@ -370,12 +379,27 @@ WndProc proc hWin :dword, uMsg :dword, wParam :dword, lParam :dword
                     invoke wsprintf, addr buffer2, chr$("Guesses: %d"), guessCount
                     invoke SetWindowText, hGuessCount, addr buffer2
 
+                    mov lowestRange, 1
+                    mov highestRange, 100
+                    invoke wsprintf, addr buffer2, chr$("Range: %d - %d"), lowestRange, highestRange
+                    invoke SetWindowText, hGuessRange, addr buffer2
+
                     invoke wsprintf, addr buffer, chr$("Debug: %d"), spookyNumber
                     invoke SetWindowText, hDebugText, addr buffer
                 .elseif ebx < eax
+                    mov lowestRange, ebx
+                    inc lowestRange
+                    invoke wsprintf, addr buffer2, chr$("Range: %d - %d"), lowestRange, highestRange
+                    invoke SetWindowText, hGuessRange, addr buffer2
+
                     invoke PlaySound, addr szFahhName, hInstance, SND_RESOURCE or SND_ASYNC
                     invoke SetWindowText, hHigherLower, chr$("Higher!")
                 .else
+                    mov highestRange, ebx
+                    dec highestRange
+                    invoke wsprintf, addr buffer2, chr$("Range: %d - %d"), lowestRange, highestRange
+                    invoke SetWindowText, hGuessRange, addr buffer2
+
                     invoke PlaySound, addr szFahhName, hInstance, SND_RESOURCE or SND_ASYNC
                     invoke SetWindowText, hHigherLower, chr$("Lower!")
                 .endif
