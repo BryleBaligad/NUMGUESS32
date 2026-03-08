@@ -34,6 +34,7 @@ WndProc proto :dword, :dword, :dword, :dword
     hBigText dd ?      ; bigtext
     hClearButton dd ?  ; clear button
     hGuessButton dd ?  ; guess button
+    hGuessCount dd ?   ; guess count text
 
     szBeepName db "BEEP", 0
     szTadaName db "TADA", 0
@@ -44,6 +45,10 @@ WndProc proto :dword, :dword, :dword, :dword
     hIconStatic1 dd ?
     hIconStatic2 dd ?
     hIconStatic3 dd ?
+
+    guessCount dd 0
+    lowestGuess dd 0
+    highestGuess dd 0
 
     currentAnimFrame dd 101
     maxAnimFrame dd 157
@@ -239,6 +244,14 @@ WinMain proc hInst :dword, hPrevInst :dword, szCmdLine :dword, nShowCmd :dword
 
     invoke SendMessage, hGuessButton, WM_SETFONT, hFont, TRUE
 
+    szText szGuessCount, "Guesses: 0"
+    invoke CreateWindowEx, 0, addr szStaticClass, addr szGuessCount, 
+                WS_CHILD or WS_VISIBLE or SS_LEFTNOWORDWRAP, 
+                8, 240, 100, 20, 
+                hWnd, 1006, hInst, NULL
+    mov hGuessCount, eax
+    invoke SendMessage, hGuessCount, WM_SETFONT, hFont, TRUE
+
     ; invoke wsprintf, addr buffer, chr$("Debug: %d"), spookyNumber
     ; invoke SetWindowText, hDebugText, addr buffer
 
@@ -275,7 +288,11 @@ WndProc proc hWin :dword, uMsg :dword, wParam :dword, lParam :dword
                 invoke SetWindowText, hEdit, chr$(0)
                 invoke SetWindowText, hHigherLower, chr$(0)
                 invoke PlaySound, addr szBeepName, hInstance, SND_RESOURCE or SND_ASYNC
-            .elseif eax == 1004
+            .elseif eax == 1004 ; guess button
+                inc guessCount
+                invoke wsprintf, addr buffer2, chr$("Guesses: %d"), guessCount
+                invoke SetWindowText, hGuessCount, addr buffer2
+
                 invoke GetWindowText, hEdit, addr buffer, 16 
                 invoke PlaySound, addr szBeepName, hInstance, SND_RESOURCE or SND_ASYNC
 
@@ -348,6 +365,10 @@ WndProc proc hWin :dword, uMsg :dword, wParam :dword, lParam :dword
                     invoke ShowWindow, hIconStatic1, SW_HIDE
                     invoke ShowWindow, hIconStatic2, SW_HIDE
                     invoke ShowWindow, hIconStatic3, SW_HIDE
+
+                    mov guessCount, 0
+                    invoke wsprintf, addr buffer2, chr$("Guesses: %d"), guessCount
+                    invoke SetWindowText, hGuessCount, addr buffer2
 
                     invoke wsprintf, addr buffer, chr$("Debug: %d"), spookyNumber
                     invoke SetWindowText, hDebugText, addr buffer
