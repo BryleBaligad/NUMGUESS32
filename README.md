@@ -2,4 +2,6 @@
 
 This project assumes you have masm32 added to PATH.
 
+Build using `build.bat`
+
 Vibe coded to hell but now I know win32 slightly more

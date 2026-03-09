@@ -1,10 +1,15 @@
+; NUMGUESS32
+; (c) Bryle Baligad, Jabez Flora, Lorenz Casas, Luis Guiuo 2026
+;
+; https://www.github.com/brylebaligad/numguess32
+
 include include\masm32rt.inc 
 
 include include\winmm.inc
 
 szText macro name, text:vararg
     local lbl
-    jmp   lbl
+    jmp lbl
     name db text, 0
     lbl:
 endm
@@ -13,12 +18,12 @@ WinMain proto :dword, :dword, :dword, :dword
 WndProc proto :dword, :dword, :dword, :dword
 
 .data
-    ClassName   db "NumGuessWindow", 0
-    AppName     db "Number Guessing Game", 0
+    ClassName db "NumGuessWindow", 0
+    AppName db "Number Guessing Game", 0
     szStaticClass db "STATIC", 0
     szButtonClass db "BUTTON", 0
     szEditClass db "EDIT", 0
-    hInstance   dd ?
+    hInstance dd ?
     lpszCmdLine dd ?
 
     spookyNumber dd ?
@@ -75,10 +80,10 @@ start:
     invoke RandomNum
 
     invoke GetModuleHandle, NULL
-    mov    hInstance,       eax
+    mov hInstance, eax
 
     invoke GetCommandLine
-    mov    lpszCmdLine, eax
+    mov lpszCmdLine, eax
 
     invoke WinMain, hInstance, NULL, lpszCmdLine, SW_SHOWDEFAULT
 
@@ -90,7 +95,7 @@ WinMain proc hInst :dword, hPrevInst :dword, szCmdLine :dword, nShowCmd :dword
     local lf :LOGFONT
     local hFont :HFONT
 
-    szText szClassName,   "MainWindow"
+    szText szClassName, "MainWindow"
     szText szWindowTitle, "Number Guessing Game"
 
     mov wc.cbSize, sizeof WNDCLASSEX
@@ -104,7 +109,7 @@ WinMain proc hInst :dword, hPrevInst :dword, szCmdLine :dword, nShowCmd :dword
 
 	invoke CreateSolidBrush, 0f0f0f0h
     mov wc.hbrBackground, eax
-	mov wc.lpszMenuName,  NULL
+	mov wc.lpszMenuName, NULL
 	mov wc.lpszClassName, offset szClassName
 
 	invoke LoadIcon, hInst, 101
@@ -121,7 +126,6 @@ WinMain proc hInst :dword, hPrevInst :dword, szCmdLine :dword, nShowCmd :dword
 				WS_OVERLAPPED or WS_CAPTION or WS_SYSMENU or WS_MINIMIZEBOX, 
 				CW_USEDEFAULT, CW_USEDEFAULT, 400, 300, 
 				NULL, NULL, hInst, NULL
-
 	mov hWnd, eax
 
     ; create label
